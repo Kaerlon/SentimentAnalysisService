@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.ML;
+using Microsoft.Extensions.Options;
 using SentimentAnalysis.API.Models;
+using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet;
 using SentimentAnalysis.MlNet.Model;
 using System;
@@ -11,36 +14,41 @@ using System.Threading.Tasks;
 
 namespace SentimentAnalysis.API.Controllers
 {
-   [Route("api/[controller]")]
-   [ApiController]
-   public class ModelTrainingController : ControllerBase
-   {
-      private readonly PredictionEnginePool<SentimentData, SentimentPrediction> _predictionEnginePool;
-      private readonly TrainModelContext _context;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ModelTrainingController : ControllerBase
+    {
+        private readonly MLConfiguration _mlConfiguration;
+        private readonly PredictionEnginePool<SentimentData, SentimentPrediction> _predictionEnginePool;
+        private readonly TrainModelContext _context;
 
-      public ModelTrainingController(PredictionEnginePool<SentimentData, SentimentPrediction> predictionEnginePool, TrainModelContext context)
-      {
-         _predictionEnginePool = predictionEnginePool;
-         _context = context;
-      }
+        public ModelTrainingController(IOptions<MLConfiguration> mlConfiguration,
+                                       PredictionEnginePool<SentimentData, SentimentPrediction> predictionEnginePool,
+                                       TrainModelContext context)
+        {
+            _mlConfiguration = mlConfiguration.Value;
+            _predictionEnginePool = predictionEnginePool;
+            _context = context;
+        }
 
+        [HttpPost]
+        public IActionResult Training()
+        {
+            var mLContext = Predictor.GetMLContext();
 
-      [HttpPost]
-      public ActionResult<string> Training()
-      {
-         var mLContext = Predictor.GetMLContext();
+            var elements = _context.TrainData
+                   .Select(v => new SentimentData { Message = v.Message, Result = v.Result })
+                   .AsEnumerable();
 
-         var elements = _context.TrainData.Select(v => new SentimentData { Message = v.Message, Result = v.Result }).ToList();
+            var splitDataView = Predictor.LoadData(mLContext, elements);
 
-         var splitDataView = Predictor.LoadData(mLContext, elements);
+            var model = Predictor.BuildAndTrainModel(mLContext, splitDataView.TrainSet);
 
-         var model = Predictor.BuildAndTrainModel(mLContext, splitDataView.TrainSet);
+            Predictor.SaveTrainModel(mLContext, model, splitDataView.TrainSet, _mlConfiguration.FilePath);
 
-         Predictor.SaveTrainModel(mLContext, model, splitDataView.TrainSet,"");
+            var result = Predictor.Evaluate(mLContext, model, splitDataView.TestSet);
 
-         var result = Predictor.Evaluate(mLContext, model, splitDataView.TestSet);
-
-         return Ok();
-      }
-   }
+            return Ok();
+        }
+    }
 }

@@ -1,25 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ML;
 using SentimentAnalysis.MlNet.Model;
 using SentimentAnalysis.API.Models;
 using Microsoft.EntityFrameworkCore;
+using SentimentAnalysis.API.Options;
 
 namespace SentimentAnalysis.API
 {
@@ -52,8 +41,10 @@ namespace SentimentAnalysis.API
                  });
             });
 
+            var mlConf = Configuration.GetSection(nameof(MLConfiguration)).Get<MLConfiguration>();
+
             services.AddPredictionEnginePool<SentimentData, SentimentPrediction>()
-                    .FromFile(modelName: "SentimentAnalysisModel", filePath: "MLModels/sentiment_model.zip", watchForChanges: true);
+                    .FromFile(mlConf.ModelName, mlConf.FilePath, mlConf.WatchForChanges);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

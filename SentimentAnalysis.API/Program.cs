@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SentimentAnalysis.API.Options;
+using System.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SentimentAnalysis.API
 {
@@ -19,18 +21,16 @@ namespace SentimentAnalysis.API
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(conf =>
+                {
+                    conf.AddJsonFile("appsettings.MLConfiguration.json", false, true);
+                }).ConfigureServices((context, services) =>
+                {
+                    services.AddOptions();
+                    services.Configure<MLConfiguration>(context.Configuration);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.ConfigureAppConfiguration(conf =>
-                    {
-                        conf.AddJsonFile("appsettings.MLConfiguration.json", false, true);
-                    });
-
-                    webBuilder.ConfigureServices(services =>
-                    {
-                        services.AddOptions<AnalyzeOption>();
-                    })
-
                     webBuilder.UseStartup<Startup>();
                 });
     }

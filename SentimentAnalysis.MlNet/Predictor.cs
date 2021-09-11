@@ -84,8 +84,8 @@ namespace SentimentAnalysis.MlNet
 
       public static void SaveTrainModel(MLContext mlContext, ITransformer model)
       {
-         var gg = new DataViewSchema()
-         mlContext.Model.Save(model, model)
+         //var gg = new DataViewSchema()
+         //mlContext.Model.Save(model, model)
       }
       public static MLContext GetMLContext()=>new MLContext();
 

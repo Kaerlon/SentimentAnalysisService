@@ -25,9 +25,8 @@ namespace SentimentAnalysis.MlNet
 
       public static ITransformer BuildAndTrainModel(MLContext mlContext, IDataView splitTrainSet)
       {
-         var estimators = mlContext.Transforms.Text.NormalizeText(outputColumnName: "Features", inputColumnName: nameof(SentimentData.Message), keepDiacritics: true)
+         var estimators = mlContext.Transforms.Text.NormalizeText(outputColumnName: "Features", inputColumnName: "Features", keepDiacritics: true)
                          .Append(mlContext.Transforms.Text.RemoveDefaultStopWords("Features", language: StopWordsRemovingEstimator.Language.Russian))
-                         .Append(mlContext.Transforms.Conversion.MapValueToKey("Features"))
                          .Append(mlContext.Transforms.Text.ProduceNgrams("Features"))
                          .Append(mlContext.Transforms.NormalizeLpNorm("Features"))
                          .Append(mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy(labelColumnName: "Label", featureColumnName: "Features"));
@@ -39,9 +38,9 @@ namespace SentimentAnalysis.MlNet
       public static string Evaluate(MLContext mlContext, ITransformer model, IDataView splitTestSet)
       {
          IDataView predictions = model.Transform(splitTestSet);
-         CalibratedBinaryClassificationMetrics metrics = mlContext.BinaryClassification.Evaluate(predictions, "Label");
+         var metrics = mlContext.MulticlassClassification.Evaluate(predictions, "Label");
 
-         return $"Accuracy: {metrics.Accuracy:P2} | Auc: {metrics.AreaUnderRocCurve:P2} | F1Score: {metrics.F1Score:P2}";
+         return $"MicroAccuracy: {metrics.MicroAccuracy:P2} | MacroAccuracy: {metrics.MacroAccuracy:P2} | TopKAccuracy: {metrics.TopKAccuracy:P2}";
       }
 
       public static void SaveTrainModel(MLContext mlContext, ITransformer model, IDataView data, string path) => mlContext.Model.Save(model, data.Schema, path);

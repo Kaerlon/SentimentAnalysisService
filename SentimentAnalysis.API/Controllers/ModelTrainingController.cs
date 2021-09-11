@@ -38,7 +38,7 @@ namespace SentimentAnalysis.API.Controllers
 
             var elements = _context.TrainData
                    .Select(v => new SentimentData { Message = v.Message, Result = v.Result })
-                   .AsEnumerable();
+                   .ToList();
 
             var splitDataView = Predictor.LoadData(mLContext, elements);
 

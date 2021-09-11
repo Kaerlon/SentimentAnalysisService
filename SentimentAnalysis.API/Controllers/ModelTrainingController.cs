@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.ML;
+using SentimentAnalysis.API.Models;
 using SentimentAnalysis.MlNet;
 using SentimentAnalysis.MlNet.Model;
 using System;
@@ -15,17 +16,30 @@ namespace SentimentAnalysis.API.Controllers
    public class ModelTrainingController : ControllerBase
    {
       private readonly PredictionEnginePool<SentimentData, SentimentPrediction> _predictionEnginePool;
+      private readonly TrainModelContext _context;
 
-      public ModelTrainingController(PredictionEnginePool<SentimentData, SentimentPrediction> predictionEnginePool)
+      public ModelTrainingController(PredictionEnginePool<SentimentData, SentimentPrediction> predictionEnginePool, TrainModelContext context)
       {
          _predictionEnginePool = predictionEnginePool;
+         _context = context;
       }
 
 
       [HttpPost]
-      public ActionResult<string> TrainModel()
+      public ActionResult<string> Training()
       {
-         var model = Predictor.GetMLContext();
+         var mLContext = Predictor.GetMLContext();
+
+         var elements = _context.TrainData.Select(v => new SentimentData { Message = v.Message, Result = v.Result }).ToList();
+
+         var splitDataView = Predictor.LoadData(mLContext, elements);
+
+         var model = Predictor.BuildAndTrainModel(mLContext, splitDataView.TrainSet);
+
+         Predictor.SaveTrainModel(mLContext, model, splitDataView.TrainSet,"");
+
+         var result = Predictor.Evaluate(mLContext, model, splitDataView.TestSet);
+
          return Ok();
       }
    }

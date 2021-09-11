@@ -36,57 +36,15 @@ namespace SentimentAnalysis.MlNet
          return model;
       }
 
-      public static void Evaluate(MLContext mlContext, ITransformer model, IDataView splitTestSet)
+      public static string Evaluate(MLContext mlContext, ITransformer model, IDataView splitTestSet)
       {
          IDataView predictions = model.Transform(splitTestSet);
          CalibratedBinaryClassificationMetrics metrics = mlContext.BinaryClassification.Evaluate(predictions, "Label");
 
+         return $"Accuracy: {metrics.Accuracy:P2} | Auc: {metrics.AreaUnderRocCurve:P2} | F1Score: {metrics.F1Score:P2}";
       }
 
-      private static void UseModelWithSingleItem(MLContext mlContext, ITransformer model)
-      {
-         PredictionEngine<SentimentData, SentimentPrediction> predictionFunction = mlContext.Model.CreatePredictionEngine<SentimentData, SentimentPrediction>(model);
-
-         SentimentData sampleStatement = new SentimentData
-         {
-            Message = "This was a very bad steak"
-         };
-
-         var resultPrediction = predictionFunction.Predict(sampleStatement);
-
-      }
-
-      public static void UseModelWithBatchItems(MLContext mlContext, ITransformer model)
-      {
-         IEnumerable<SentimentData> sentiments = new[]
-         {
-                new SentimentData
-                {
-                    Message = "This was a horrible meal"
-                },
-                new SentimentData
-                {
-                    Message = "I love this spaghetti."
-                }
-            };
-
-         IDataView batchComments = mlContext.Data.LoadFromEnumerable(sentiments);
-
-         IDataView predictions = model.Transform(batchComments);
-         IEnumerable<SentimentPrediction> predictedResults = mlContext.Data.CreateEnumerable<SentimentPrediction>(predictions, reuseRowObject: false);
-
-
-         foreach (SentimentPrediction prediction in predictedResults)
-         {
-            Console.WriteLine($"Sentiment: {prediction.Message} | Prediction: {prediction.Prediction} | Probability: {prediction.Probability} ");
-         }
-      }
-
-      public static void SaveTrainModel(MLContext mlContext, ITransformer model)
-      {
-         //var gg = new DataViewSchema()
-         //mlContext.Model.Save(model, model)
-      }
+      public static void SaveTrainModel(MLContext mlContext, ITransformer model, IDataView data, string path) => mlContext.Model.Save(model, data.Schema, path);
       public static MLContext GetMLContext()=>new MLContext();
 
    }

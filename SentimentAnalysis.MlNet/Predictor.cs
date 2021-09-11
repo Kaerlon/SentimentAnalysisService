@@ -37,13 +37,13 @@ namespace SentimentAnalysis.MlNet
             return model;
         }
 
-        public static string Evaluate(MLContext mlContext, ITransformer model, IDataView splitTestSet)
-        {
-            IDataView predictions = model.Transform(splitTestSet);
-            CalibratedBinaryClassificationMetrics metrics = mlContext.BinaryClassification.Evaluate(predictions);
+      public static string Evaluate(MLContext mlContext, ITransformer model, IDataView splitTestSet)
+      {
+         IDataView predictions = model.Transform(splitTestSet);
+         var metrics = mlContext.MulticlassClassification.Evaluate(predictions, "Label");
 
-            return $"Accuracy: {metrics.Accuracy:P2} | Auc: {metrics.AreaUnderRocCurve:P2} | F1Score: {metrics.F1Score:P2}";
-        }
+         return $"MicroAccuracy: {metrics.MicroAccuracy:P2} | MacroAccuracy: {metrics.MacroAccuracy:P2} | TopKAccuracy: {metrics.TopKAccuracy:P2}";
+      }
 
         public static void SaveTrainModel(MLContext mlContext, ITransformer model, IDataView data, string path) =>
             mlContext.Model.Save(model, data.Schema, path);

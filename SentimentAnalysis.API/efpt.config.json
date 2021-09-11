@@ -1,0 +1,36 @@
+﻿{
+  "CodeGenerationMode": 0,
+  "ContextClassName": "TraindatabaseContext",
+  "ContextNamespace": null,
+  "DefaultDacpacSchema": null,
+  "FilterSchemas": false,
+  "IncludeConnectionString": true,
+  "ModelNamespace": null,
+  "OutputContextPath": "Models",
+  "OutputPath": "Models",
+  "ProjectRootNamespace": "SentimentAnalysis.API",
+  "Schemas": null,
+  "SelectedHandlebarsLanguage": 0,
+  "SelectedToBeGenerated": 0,
+  "Tables": [
+    {
+      "Name": "[dbo].[TrainData]",
+      "ObjectType": 0
+    }
+  ],
+  "UiHint": "DESKTOP-203EV80\\SQLEXPRESS.trainDataBase",
+  "UseBoolPropertiesWithoutDefaultSql": true,
+  "UseDatabaseNames": true,
+  "UseDbContextSplitting": false,
+  "UseFluentApiOnly": true,
+  "UseHandleBars": false,
+  "UseInflector": true,
+  "UseLegacyPluralizer": false,
+  "UseNoConstructor": false,
+  "UseNoNavigations": false,
+  "UseNoObjectFilter": false,
+  "UseNodaTime": false,
+  "UseNullableReferences": false,
+  "UseSchemaFolders": false,
+  "UseSpatial": false
+}

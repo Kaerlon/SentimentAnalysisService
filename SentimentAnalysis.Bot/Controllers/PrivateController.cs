@@ -43,7 +43,7 @@ namespace SentimentAnalysis.Bot.Controllers
 
 			var result = await response.Content.ReadFromJsonAsync<ResponseModel>();
 
-			switch (result)
+			switch (result.Prediction)
 			{
 				case 0:
 
@@ -53,6 +53,28 @@ namespace SentimentAnalysis.Bot.Controllers
 			}
 
 			await ReplyTextMessageAsync("");
+		}
+
+		[CommandFilter("ModelTraining"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]
+		public async Task ModelTraining()
+		{
+			var response = await _httpClient.PostAsync("/api/ModelTraining", null);
+			response.EnsureSuccessStatusCode();
+
+			var result = await response.Content.ReadAsStringAsync();
+
+			await ReplyTextMessageAsync(result);
+		}
+
+		[CommandFilter("Evaluate"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]
+		public async Task Evaluate()
+		{
+			var response = await _httpClient.PostAsync("/api/Analyze/Evaluate", null);
+			response.EnsureSuccessStatusCode();
+
+			var result = await response.Content.ReadAsStringAsync();
+
+			await ReplyTextMessageAsync(result);
 		}
 
 		#region Creazione Master

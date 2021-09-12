@@ -19,7 +19,6 @@ namespace SentimentAnalysis.API.Models
         }
 
         public virtual DbSet<TrainModel> TrainData { get; set; }
-        public virtual DbSet<TrainModel> TrainData1 { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,9 +28,6 @@ namespace SentimentAnalysis.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
-
-            modelBuilder.Entity<TrainModel>()
-                .ToTable(nameof(TrainData1));
 
             OnModelCreatingPartial(modelBuilder);
         }

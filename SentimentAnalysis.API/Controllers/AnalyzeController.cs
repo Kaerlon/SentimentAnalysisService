@@ -44,7 +44,7 @@ namespace SentimentAnalysis.API.Controllers
 		{
 			var mLContext = Predictor.GetMLContext();
 
-			var elements = _context.TrainData1
+			var elements = _context.TrainData
 				   .Select(v => new SentimentData { Message = v.Message, Label = v.Result })
 				   .ToList();
 

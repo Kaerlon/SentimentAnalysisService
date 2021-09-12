@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.ML;
-using SentimentAnalysis.MlNet.Model;
+using Microsoft.OpenApi.Models;
 using SentimentAnalysis.API.Models;
-using Microsoft.EntityFrameworkCore;
 using SentimentAnalysis.API.Options;
+using SentimentAnalysis.MlNet.Model;
 
 namespace SentimentAnalysis.API
 {
@@ -43,6 +43,9 @@ namespace SentimentAnalysis.API
 
             var mlConf = Configuration.GetSection(nameof(MLConfiguration)).Get<MLConfiguration>();
 
+            services.AddOptions();
+            services.Configure<MLConfiguration>(Configuration.GetSection(nameof(MLConfiguration)));
+
             services.AddPredictionEnginePool<SentimentData, SentimentPrediction>()
                     .FromFile(mlConf.ModelName, mlConf.FilePath, mlConf.WatchForChanges);
         }
@@ -57,11 +60,7 @@ namespace SentimentAnalysis.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SentimentAnalysis.API v1"));
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

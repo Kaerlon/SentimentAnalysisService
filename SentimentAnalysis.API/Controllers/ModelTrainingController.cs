@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.ML;
 using Microsoft.Extensions.Options;
 using SentimentAnalysis.API.Models;
 using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet;
 using SentimentAnalysis.MlNet.Model;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace SentimentAnalysis.API.Controllers
 {
@@ -37,7 +32,7 @@ namespace SentimentAnalysis.API.Controllers
             var mLContext = Predictor.GetMLContext();
 
             var elements = _context.TrainData
-                   .Select(v => new SentimentData { Message = v.Message, Result = v.Result })
+                   .Select(v => new SentimentData { Message = v.Message, Label = v.Result })
                    .ToList();
 
             var splitDataView = Predictor.LoadData(mLContext, elements);
@@ -48,7 +43,7 @@ namespace SentimentAnalysis.API.Controllers
 
             var result = Predictor.Evaluate(mLContext, model, splitDataView.TestSet);
 
-            return Ok();
+            return Ok(result);
         }
     }
 }

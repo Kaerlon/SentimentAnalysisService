@@ -1,19 +1,16 @@
-﻿using Microsoft.ML.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace SentimentAnalysis.MlNet.Model
 {
-   public class SentimentPrediction : SentimentData
-   {
-      [ColumnName("PredictedLabel")]
-      public int Prediction { get; set; }
+    public class SentimentPrediction
+    {
+        public Int32 PredictLabel { get; set; }
 
-      public float Probability { get; set; }
+        //public float Probability { get; set; }
 
-      public float Score { get; set; }
-   }
+        //public Vector<Single> Score { get; set; }
+
+        //[ColumnName("Score")]
+        //public float Score { get; set; }
+    }
 }

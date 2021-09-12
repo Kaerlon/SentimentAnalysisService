@@ -24,10 +24,6 @@ namespace SentimentAnalysis.API
                 .ConfigureAppConfiguration(conf =>
                 {
                     conf.AddJsonFile("appsettings.MLConfiguration.json", false, true);
-                }).ConfigureServices((context, services) =>
-                {
-                    services.AddOptions();
-                    services.Configure<MLConfiguration>(context.Configuration);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

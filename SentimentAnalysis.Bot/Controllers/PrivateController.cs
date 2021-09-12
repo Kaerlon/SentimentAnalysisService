@@ -43,16 +43,23 @@ namespace SentimentAnalysis.Bot.Controllers
 
 			var result = await response.Content.ReadFromJsonAsync<ResponseModel>();
 
+			string str="По моему мнению, ваше сообщение - ";
 			switch (result.Prediction)
 			{
 				case 0:
-
+					str += "Отрицательное";
+					break;
+				case 1:
+					str += "Положительное";
+					break;
+				case 2:
+					str += "Нейтральное";
 					break;
 				default:
 					break;
 			}
 
-			await ReplyTextMessageAsync("");
+			await ReplyTextMessageAsync(str);
 		}
 
 		[CommandFilter("ModelTraining"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]

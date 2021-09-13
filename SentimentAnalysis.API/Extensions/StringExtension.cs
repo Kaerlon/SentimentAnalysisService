@@ -11,7 +11,7 @@ namespace SentimentAnalysis.API.Extensions
 		public static string NormolaceString(this string str)
 		{
 			str = str.ToLower();
-			str = str.Where(c => !char.IsPunctuation(c)).Aggregate("", (current, c) => current + c);
+			str = str.Where(c => !char.IsPunctuation(c) && !char.IsNumber(c)).Aggregate("", (current, c) => current + c);
 			return str;
 		}
 	}

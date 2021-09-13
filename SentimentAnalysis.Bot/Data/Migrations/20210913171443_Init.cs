@@ -10,8 +10,8 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "Newsletters",
                 columns: table => new
                 {
-                    Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -22,18 +22,18 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InviteLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StickerSetName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CanSetStickerSet = table.Column<bool>(type: "bit", nullable: true)
+                    Id = table.Column<long>(type: "INTEGER", nullable: false),
+                    Username = table.Column<string>(type: "TEXT", nullable: true),
+                    State = table.Column<string>(type: "TEXT", nullable: true),
+                    Type = table.Column<int>(type: "INTEGER", nullable: false),
+                    Role = table.Column<int>(type: "INTEGER", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: true),
+                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
+                    LastName = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    InviteLink = table.Column<string>(type: "TEXT", nullable: true),
+                    StickerSetName = table.Column<string>(type: "TEXT", nullable: true),
+                    CanSetStickerSet = table.Column<bool>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -44,9 +44,9 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "ChatSettings",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false),
-                    ServantListNotifications = table.Column<bool>(type: "bit", nullable: false),
-                    SupportListNotifications = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<long>(type: "INTEGER", nullable: false),
+                    ServantListNotifications = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SupportListNotifications = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,9 +63,9 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "Data",
                 columns: table => new
                 {
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    UserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -82,8 +82,8 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "NewsletterChats",
                 columns: table => new
                 {
-                    NewsletterKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ChatId = table.Column<long>(type: "bigint", nullable: false)
+                    NewsletterKey = table.Column<string>(type: "TEXT", nullable: false),
+                    ChatId = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,11 +106,11 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "People",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,11 +127,11 @@ namespace SentimentAnalysis.Bot.Data.Migrations
                 name: "RegisteredChats",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PersonId = table.Column<int>(type: "int", nullable: false),
-                    ChatId = table.Column<long>(type: "bigint", nullable: false),
-                    ChatId1 = table.Column<long>(type: "bigint", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PersonId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ChatId = table.Column<long>(type: "INTEGER", nullable: false),
+                    ChatId1 = table.Column<long>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {

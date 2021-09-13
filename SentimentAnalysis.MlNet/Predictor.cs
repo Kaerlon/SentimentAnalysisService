@@ -23,10 +23,10 @@ namespace SentimentAnalysis.MlNet
 
 			var estimators = mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: Constants.Label, inputColumnName: Constants.Label)
 				.Append(mlContext.Transforms.Text.NormalizeText(outputColumnName: Constants.Message, inputColumnName: Constants.Message,keepDiacritics: true))
-				.Append(mlContext.Transforms.Text.RemoveDefaultStopWords(outputColumnName: Constants.Message, inputColumnName: Constants.Message,Language.Russian))
 				.Append(mlContext.Transforms.Text.TokenizeIntoWords(outputColumnName: Constants.Message, inputColumnName: Constants.Message,new char[] {' '}))
 				.Append(mlContext.Transforms.Text.FeaturizeText(Constants.Features, Constants.Message))
-				.Append(mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy())
+				//.Append(mlContext.Transforms.Text.RemoveDefaultStopWords(outputColumnName: Constants.Features, inputColumnName: Constants.Features, Language.Russian))
+				.Append(mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy())
 				.Append(mlContext.Transforms.Conversion.MapKeyToValue(inputColumnName: Constants.PredictedLabel, outputColumnName: Constants.PredictLabel));
 
 			var model = estimators.Fit(splitTrainSet);

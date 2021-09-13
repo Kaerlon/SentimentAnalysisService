@@ -44,16 +44,15 @@ namespace SentimentAnalysis.Bot.Controllers
 		[CommandFilter("help"), ChatTypeFilter(ChatType.Private)]
 		public async Task Help()
 		{
-			await ReplyTextMessageAsync("<b>Chaldea Bot</b>\n\n" +
-										"Benvenuto nel bot dedicato a Fate/Grand Order.\n" +
-										"Attualmente questo bot può permettervi di registrare un Master (in privato) " +
-										"inviandomi le sue informazioni. Dopo che è stato registrato correttamente " +
-										"potete collegarlo in una qualsasi chat in cui è presente questo bot in modo " +
-										"da poter inviare velocemente il Master in qualsiasi momento.\n" +
+			await ReplyTextMessageAsync("<b>Я бот Finodays Bank</b>\n\n" +
+										"Я ещё маленький, но уже умею анализировать ваши сообщения." +
+										"Вот что я могу)"+
 										"\n" +
-										"/help - Показать это сообщение\n" +
+										"/help - Показывает мои таланты\n" +
+										"/Evaluate - Это показывает мою способность анализировать\n" +
+										"/ModelTraining - Иду в базу данных читать сообщения для обучения\n" +
 										"\n" +
-										"Бот создан @lIllIIIllIl",
+										"Бот создан @xarleyn, @kaerlon",
 										ParseMode.Html);
 		}
 

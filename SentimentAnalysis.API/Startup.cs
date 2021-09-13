@@ -33,10 +33,9 @@ namespace SentimentAnalysis.API
             services.AddDbContext<TrainModelContext>(conf =>
             {
                 conf.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                conf.UseSqlServer(Configuration.GetConnectionString("Default"), sqlConf =>
+                conf.UseSqlite(Configuration.GetConnectionString("SqlLite"), sqlConf =>
                  {
                      sqlConf.CommandTimeout(60);
-                     sqlConf.EnableRetryOnFailure(30);
                      sqlConf.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                  });
             });

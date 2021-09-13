@@ -22,8 +22,9 @@ namespace SentimentAnalysis.API.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
-        }
+			optionsBuilder.UseSqlite(@"Filename=trainBotData.db");
+			base.OnConfiguring(optionsBuilder);
+		}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -30,7 +30,7 @@ namespace SentimentAnalysis.Bot.Data
 		{
 			if (!optionsBuilder.IsConfigured)
 			{
-				optionsBuilder.UseSqlServer(_configuration.GetConnectionString("Default"), sqlOpt =>
+				optionsBuilder.UseSqlite(_configuration.GetConnectionString("SqlLite"), sqlOpt =>
 				{
 
 				});

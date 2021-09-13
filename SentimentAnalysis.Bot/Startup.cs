@@ -47,7 +47,7 @@ namespace SentimentAnalysis.Bot
 				options.EnableSensitiveDataLogging();
 				options.EnableServiceProviderCaching();
 
-				options.UseSqlServer(Configuration.GetConnectionString("Default"),
+				options.UseSqlite(Configuration.GetConnectionString("SqlLite"),
 									 opt => { opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery); }
 									);
 			});

@@ -129,12 +129,15 @@ namespace SentimentAnalysis.Bot.Controllers
 			if (Update?.CallbackQuery?.Data == null || Update.CallbackQuery.Message?.From?.Id == null)
 				return null;
 
-			var masterName = InlineDataWrapper.ParseInlineData(Update.CallbackQuery.Data).Data["person"];
-			if (masterName == null)
+			var idStr = InlineDataWrapper.ParseInlineData(Update.CallbackQuery.Data).Data["person"];
+			if (idStr == null)
+				return null;
+
+			if (!long.TryParse(idStr, out long id))
 				return null;
 
 			var person = await TelegramContext.People.FirstOrDefaultAsync(m =>
-				/*m.Name == masterName && */m.UserId == Update.CallbackQuery.Message.Chat.Id
+				m.UserId == Update.CallbackQuery.Message.Chat.Id
 			);
 
 			return person;

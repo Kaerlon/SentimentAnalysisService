@@ -34,7 +34,7 @@ namespace SentimentAnalysis.Bot.Extensions
 				{
 					options.CreateTelegramBotClient(bot.BotToken);
 					options.DispatcherBuilder = new DispatcherBuilder<ApplicationContext, Controller>()
-						.AddControllers(typeof(PrivateController));
+						.AddControllers(typeof(PrivateController), typeof(AdminController));
 
 					options.BasePath = bot.BasePath;
 					options.GroupChatBehaviour = bot.GroupChatBehaviour;

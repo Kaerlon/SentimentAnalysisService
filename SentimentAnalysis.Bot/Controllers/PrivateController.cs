@@ -14,8 +14,6 @@ using System.Threading.Tasks;
 using Telegram.Bot.Advanced.Core.Dispatcher.Filters;
 using Telegram.Bot.Advanced.Core.Tools;
 using Telegram.Bot.Advanced.DbContexts;
-using Telegram.Bot.Advanced.Models;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -43,48 +41,55 @@ namespace SentimentAnalysis.Bot.Controllers
 
 			var result = await response.Content.ReadFromJsonAsync<ResponseModel>();
 
-			string str="По моему мнению, ваше сообщение - ";
-			switch (result.Prediction)
+			var str = "По моему мнению, ваше сообщение:";
+
+			foreach (var pred in result.Scores)
 			{
-				case 0:
-					str += "Отрицательное";
-					break;
-				case 1:
-					str += "Положительное";
-					break;
-				case 2:
-					str += "Нейтральное";
-					break;
-				default:
-					break;
+				var rusName = "";
+
+				switch (pred.Key)
+				{
+					case LabelEnums.Negative:
+						rusName = "😡 Негативное";
+						break;
+					case LabelEnums.Positive:
+						rusName = "😄 Позитивное";
+						break;
+					case LabelEnums.Neutral:
+						rusName = "😐 Нейтральное";
+						break;
+				}
+
+				str += $"\n{rusName} на {pred.Value:P2}";
 			}
 
 			await ReplyTextMessageAsync(str);
+
+			if (result.Prediction == 10)
+			{
+				string.Concat(new[] { "Спасибо за Ваш комментарий, пожалуйста оцените приложение 🙏" });
+
+				var data = new Dictionary<string, string>()
+				{
+					{ "id", TelegramChat.ToChatId().Identifier.ToString()}
+				};
+				var rateApp = new InlineKeyboardButton()
+				{
+					Text = "Оценить",
+					Url = "https://play.google.com/store/apps/details?id=ru.letobank.Prometheus&hl=ru&gl=RU",
+					CallbackData = new InlineDataWrapper(InlineKeyboardCommands.RateApp, data).ToString()
+				};
+				var keyboard = new InlineKeyboardMarkup(new[] {
+					new [] {
+						rateApp
+					}
+				});
+
+				await ReplyTextMessageAsync(str, mode: ParseMode.MarkdownV2, replyToMessageId: 0, replyMarkup: keyboard);
+			}
 		}
 
-		[CommandFilter("ModelTraining"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]
-		public async Task ModelTraining()
-		{
-			var response = await _httpClient.PostAsync("/api/ModelTraining", null);
-			response.EnsureSuccessStatusCode();
-
-			var result = await response.Content.ReadAsStringAsync();
-
-			await ReplyTextMessageAsync(result);
-		}
-
-		[CommandFilter("Evaluate"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]
-		public async Task Evaluate()
-		{
-			var response = await _httpClient.PostAsync("/api/Analyze/Evaluate", null);
-			response.EnsureSuccessStatusCode();
-
-			var result = await response.Content.ReadAsStringAsync();
-
-			await ReplyTextMessageAsync(result);
-		}
-
-		#region Creazione Master
+		#region
 
 		//[CommandFilter("add"), MessageTypeFilter(MessageType.Text)]
 		//public async Task Add()
@@ -141,130 +146,27 @@ namespace SentimentAnalysis.Bot.Controllers
 
 		#endregion
 
-		[CommandFilter("master"), ChatTypeFilter(ChatType.Private)]
-		public async Task ShowMasterPrivate()
-		{
-			if (MessageCommand.Parameters.Count < 1)
-			{
-				_logger.LogDebug("Ricevuto comando /master senza parametri");
-				await BotData.Bot.SendTextMessageAsync(TelegramChat.Id,
-					"Devi passarmi il nome del master che vuoi mostrare");
-			}
-			else
-			{
-				//var master = TelegramContext.People
-				//    .Include(m => m.User)
-				//    .SingleOrDefault(m => m.Name == MessageCommand.Parameters.JoinStrings(" ") &&
-				//                          m.UserId == Update.Message.Chat.Id);
-				//if (master == null)
-				//{
-				//    await BotData.Bot.SendTextMessageAsync(TelegramChat.Id,
-				//        "Nessun Master trovato con il nome " + MessageCommand.Parameters.JoinStrings(" "));
-				//}
-				//else
-				//{
-				//    await SendMaster(master);
-
-				//    var settingsText = "Impostazioni:\n\n" +
-				//                       $"Rayshift: {(master.UseRayshift ? "abilitato" : "disabilitato")}";
-				//    var settingsKeyboard = BuildSettingsKeyboard(master);
-				//    await BotData.Bot.SendTextMessageAsync(TelegramChat.Id, settingsText,
-				//        replyMarkup: settingsKeyboard);
-				//}
-			}
-		}
-
 		#region Inline Callback
 
-		[CallbackCommandFilter(InlineKeyboardCommands.UpdateServantList)]
-		public async Task InlineUpdateServantList()
+		[CallbackCommandFilter(InlineKeyboardCommands.RateApp)]
+		public async Task InlineRateApp()
 		{
 			await BotData.Bot.AnswerCallbackQueryAsync(Update.CallbackQuery.Id);
 
-			var master = await GetPersonFromCallbackData();
-			if (master == null)
+			var id = await GetPersonFromCallbackData();
+			if (id == null)
 			{
-				await ReplyTextMessageAsync("Il master è errato o non è disponibile");
-				return;
-			}
-
-			//await GotoEditServantList(master);
-		}
-
-		[CallbackCommandFilter(InlineKeyboardCommands.DisableRayshift)]
-		public async Task InlineDisableRayshift()
-		{
-			await BotData.Bot.AnswerCallbackQueryAsync(Update.CallbackQuery.Id);
-
-			var master = await GetPersonFromCallbackData();
-			if (master == null)
-			{
-				await ReplyTextMessageAsync("Il master è errato o non è disponibile");
+				await ReplyTextMessageAsync("");
 				return;
 			}
 
 			if (await SaveChangesAsync())
 			{
-				await ReplyTextMessageAsync(
-					"Rayshift è stato disabilitato.\n" +
-					$"Ora sei senza support list, se vuoi impostare un immagine come support list usa il comando /support_list {master.Name}\n");
-			}
-		}
-
-		[CallbackCommandFilter(InlineKeyboardCommands.DeleteMaster)]
-		public async Task InlineDeleteMaster()
-		{
-			await BotData.Bot.AnswerCallbackQueryAsync(Update.CallbackQuery.Id);
-
-			var master = await GetPersonFromCallbackData();
-			if (master == null)
-			{
-				await ReplyTextMessageAsync("Il master è errato o non è disponibile");
-				return;
-			}
-
-			TelegramContext.People.Remove(master);
-			if (await SaveChangesAsync())
-			{
-				await ReplyTextMessageAsync($"Il Master {master.Name} è stato cancellato correttamente");
+				await ReplyTextMessageAsync("");
 			}
 		}
 
 		#endregion
-
-		private async Task SendSupportListUpdateNotifications(Person person, string text)
-		{
-			var chats = await GetRegisteredChatWithSettings(person);
-
-			foreach (var chat in chats.Where(chat => chat.Settings.SupportListNotifications))
-			{
-				try
-				{
-					await BotData.Bot.SendTextMessageAsync(chat.Chat.ChatId, text, ParseMode.Html);
-				}
-				catch (ApiRequestException e)
-				{
-					_logger.LogWarning(e.Message);
-				}
-			}
-		}
-
-		private async Task SendServantListUpdateNotifications(Person person, string text)
-		{
-			var chats = await GetRegisteredChatWithSettings(person);
-
-			foreach (var chat in chats.Where(chat => chat.Settings.ServantListNotifications))
-			{
-				try
-				{
-					await BotData.Bot.SendTextMessageAsync(chat.Chat.ChatId, text, ParseMode.Html);
-				}
-				catch (ApiRequestException e)
-				{
-					_logger.LogWarning(e.Message);
-				}
-			}
-		}
 
 		private async Task<List<RegisteredChatSettings>> GetRegisteredChatWithSettings(Person person)
 		{
@@ -279,80 +181,9 @@ namespace SentimentAnalysis.Bot.Controllers
 			return chats;
 		}
 
-		private IReplyMarkup BuildSettingsKeyboard(Person person)
-		{
-			var data = new Dictionary<string, string>() {
-				{"master", person.Name}
-			};
-
-			var updateSupportList = new InlineKeyboardButton
-			{
-				Text = "Cambia Support List",
-				CallbackData = new InlineDataWrapper(InlineKeyboardCommands.UpdateSupportList, data).ToString()
-			};
-
-			var updateServantList = new InlineKeyboardButton
-			{
-				Text = "Cambia Servant List",
-				CallbackData = new InlineDataWrapper(InlineKeyboardCommands.UpdateServantList, data).ToString()
-			};
-
-			var toggleRayshift = new InlineKeyboardButton
-			{
-				Text = "Abilita Rayshift",
-				CallbackData =
-				new InlineDataWrapper(InlineKeyboardCommands.EnableRayshift, data).ToString()
-			};
-
-			var deleteMaster = new InlineKeyboardButton()
-			{
-				Text = "Elimina Master",
-				CallbackData = new InlineDataWrapper(InlineKeyboardCommands.DeleteMaster, data).ToString()
-			};
-
-			var keyboard = new InlineKeyboardMarkup(new[] {
-				new [] {
-					updateSupportList, updateServantList
-				},
-				new [] {
-					toggleRayshift
-				},
-				new [] {
-					deleteMaster
-				}
-			});
-
-			return keyboard;
-		}
-
-		//private async Task GotoEditSupportList(Person person)
-		//{
-		//    TelegramChat["edit_support_list"] = person.Id.ToString();
-		//    TelegramChat.State = ConversationState.UpdatingSupportList;
-		//    if (await SaveChangesAsync())
-		//    {
-		//        await ReplyTextMessageAsync(
-		//            "Inviami la nuova foto, /rayshift se vuoi impostare Rayshift.io come provider o /skip se vuoi rimuoverla");
-		//    }
-		//}
-
-		//private async Task GotoEditServantList(Person person)
-		//{
-		//    TelegramChat["edit_servant_list"] = person.Id.ToString();
-		//    TelegramChat.State = ConversationState.UpdatingServantList;
-		//    if (await SaveChangesAsync())
-		//    {
-		//        await ReplyTextMessageAsync("Inviami la nuova foto o /skip che rimuoverla");
-		//    }
-		//}
-
 		private static class InlineKeyboardCommands
 		{
-			public const string UpdateSupportList = "UpdateSupportList";
-			public const string UpdateServantList = "UpdateServantList";
-			public const string DeleteMaster = "DeleteMaster";
-			public const string EnableRayshift = "EnableRayshift";
-			public const string DisableRayshift = "DisableRayshift";
+			public const string RateApp = "RateApp";
 		}
 
 		private class RegisteredChatSettings

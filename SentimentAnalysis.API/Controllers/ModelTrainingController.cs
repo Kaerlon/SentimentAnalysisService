@@ -43,7 +43,10 @@ namespace SentimentAnalysis.API.Controllers
 
             var result = Predictor.Evaluate(mLContext, model, splitDataView.TestSet);
 
-            return Ok(result);
-        }
+			return new JsonResult(result, new System.Text.Json.JsonSerializerOptions()
+			{
+				WriteIndented = true
+			});
+		}
     }
 }

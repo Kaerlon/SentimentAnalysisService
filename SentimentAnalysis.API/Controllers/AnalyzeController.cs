@@ -7,6 +7,7 @@ using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet;
 using SentimentAnalysis.MlNet.Model;
 
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SentimentAnalysis.API.Controllers
@@ -36,7 +37,22 @@ namespace SentimentAnalysis.API.Controllers
 
 			var prediction = _predictionEnginePool.Predict(_mlConfiguration.ModelName, new SentimentData { Message = input });
 
-			return Ok(new { Prediction = prediction.PredictLabel });
+			var scheme = _predictionEnginePool.GetPredictionEngine(_mlConfiguration.ModelName).OutputSchema;
+
+			//var test = Predictor.GetScoresWithLabelsSorted(scheme, "Score", prediction.Score.GetValues().ToArray());
+
+			;
+
+			return Ok(new
+			{
+				Prediction = prediction.PredictLabel,
+				Scores = new Dictionary<string, float>()
+				{
+					{ "Positive", prediction.Score.GetValues()[2] },
+					{ "Neutral", prediction.Score.GetValues()[0] },
+					{ "Negative", prediction.Score.GetValues()[1] },
+				}
+			});
 		}
 
 		[HttpPost("Evaluate")]
@@ -54,7 +70,10 @@ namespace SentimentAnalysis.API.Controllers
 
 			var result = Predictor.Evaluate(mLContext, model, splitDataView.TestSet);
 
-			return Ok(result);
+			return new JsonResult(result, new System.Text.Json.JsonSerializerOptions()
+			{
+				WriteIndented = true
+			});
 		}
 	}
 }

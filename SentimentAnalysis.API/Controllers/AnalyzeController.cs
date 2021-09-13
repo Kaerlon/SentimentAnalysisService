@@ -2,6 +2,7 @@
 using Microsoft.Extensions.ML;
 using Microsoft.Extensions.Options;
 
+using SentimentAnalysis.API.Extensions;
 using SentimentAnalysis.API.Models;
 using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet;
@@ -35,7 +36,7 @@ namespace SentimentAnalysis.API.Controllers
 			if (string.IsNullOrEmpty(input))
 				return BadRequest();
 
-			var prediction = _predictionEnginePool.Predict(_mlConfiguration.ModelName, new SentimentData { Message = input });
+			var prediction = _predictionEnginePool.Predict(_mlConfiguration.ModelName, new SentimentData { Message = input.NormolaceString() });
 
 			var scheme = _predictionEnginePool.GetPredictionEngine(_mlConfiguration.ModelName).OutputSchema;
 
@@ -61,7 +62,7 @@ namespace SentimentAnalysis.API.Controllers
 			var mLContext = Predictor.GetMLContext();
 
 			var elements = _context.TrainData
-				   .Select(v => new SentimentData { Message = v.Message, Label = v.Result })
+				   .Select(v => new SentimentData { Message = v.Message.NormolaceString(), Label = v.Result })
 				   .ToList();
 
 			var splitDataView = Predictor.LoadData(mLContext, elements);

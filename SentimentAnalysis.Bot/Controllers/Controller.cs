@@ -39,21 +39,34 @@ namespace SentimentAnalysis.Bot.Controllers
 			await SaveChangesAsync();
 
 			await ReplyTextMessageAsync("Привет", ParseMode.Html);
+
 		}
 
 		[CommandFilter("help"), ChatTypeFilter(ChatType.Private)]
-		public async Task Help()
+		public Task Help()
 		{
-			await ReplyTextMessageAsync("<b>Я бот Finodays Bank</b>\n\n" +
-										"Я ещё маленький, но уже умею анализировать ваши сообщения." +
-										"Вот что я могу)"+
-										"\n" +
-										"/help - Показывает мои таланты\n" +
-										"/Evaluate - Это показывает мою способность анализировать\n" +
-										"/ModelTraining - Иду в базу данных читать сообщения для обучения\n" +
-										"\n" +
-										"Бот создан @xarleyn, @kaerlon",
-										ParseMode.Html);
+			return ReplyTextMessageAsync("<b>Я бот Finodays Bank</b>\n\n" +
+										 "Я ещё маленький, но уже умею анализировать ваши сообщения." +
+										 "Вот что я могу)" +
+										 "\n" +
+										 "/help - Показывает мои таланты\n" +
+										 "/Evaluate - Это показывает мою способность анализировать\n" +
+										 "/ModelTraining - Иду в базу данных читать сообщения для обучения\n" +
+										 "\n" +
+										 "Бот создан @xarleyn, @kaerlon",
+										 ParseMode.Html);
+		}
+
+		public static MessageType[] GetUsuported =>
+			Enum.GetValues(typeof(MessageType)).Cast<MessageType>().ToList()
+			.Where(x => new[] { MessageType.Text }.Contains(x))
+			.ToArray();
+
+		[ChatTypeFilter(ChatType.Private)]
+		[UpdateTypeFilter(UpdateType.Message)]
+		public async Task NotSupportedType()
+		{
+			await ReplyTextMessageAsync("Извините, я пока не умею обрабатывать такие сообщения 😢", ParseMode.Html);
 		}
 
 		[CommandFilter("reset")]

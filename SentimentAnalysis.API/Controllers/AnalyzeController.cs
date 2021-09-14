@@ -44,7 +44,7 @@ namespace SentimentAnalysis.API.Controllers
 
 			;
 
-			return Ok(new
+			var result = new
 			{
 				Prediction = prediction.PredictLabel,
 				Scores = new Dictionary<string, float>()
@@ -53,7 +53,9 @@ namespace SentimentAnalysis.API.Controllers
 					{ "Neutral", prediction.Score.GetValues()[0] },
 					{ "Negative", prediction.Score.GetValues()[1] },
 				}
-			});
+			};
+
+			return Ok(result);
 		}
 
 		[HttpPost("Evaluate")]

@@ -24,7 +24,7 @@ namespace SentimentAnalysis.Bot.Controllers
 			_httpClient = clientFactory.CreateClient("MLHttpClient");
 		}
 
-		[CommandFilter("ModelTraining"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]
+		[CommandFilter("ModelTraining"), MessageTypeFilter(MessageType.Text)]
 		public async Task ModelTraining()
 		{
 			var response = await _httpClient.PostAsync("/api/ModelTraining", null);
@@ -35,7 +35,7 @@ namespace SentimentAnalysis.Bot.Controllers
 			await ReplyTextMessageAsync(result);
 		}
 
-		[CommandFilter("Evaluate"), ChatRoleFilter(ChatRole.Administrator), MessageTypeFilter(MessageType.Text)]
+		[CommandFilter("Evaluate"), MessageTypeFilter(MessageType.Text)]
 		public async Task Evaluate()
 		{
 			var response = await _httpClient.PostAsync("/api/Analyze/Evaluate", null);

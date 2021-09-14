@@ -36,9 +36,15 @@ namespace SentimentAnalysis.Bot.Controllers
 		[NoCommandFilter, MessageTypeFilter(MessageType.Text)]
 		public async Task Communication()
 		{
-			var message = Update.Type == UpdateType.EditedMessage ? Update.EditedMessage.Text : Update.Message.Text;
+			if (Update.Type == UpdateType.EditedMessage)
+			{
+				return;
+			}
 
-			var response = await _httpClient.PostAsJsonAsync<string>("/api/Analyze/Predict", message);
+			var message = Update.Message.Text;
+			var messageId = Update.Message.MessageId;
+
+			var response = await _httpClient.PostAsJsonAsync("/api/Analyze/Predict", message);
 			response.EnsureSuccessStatusCode();
 
 			var result = await response.Content.ReadFromJsonAsync<ResponseModel>();
@@ -67,9 +73,9 @@ namespace SentimentAnalysis.Bot.Controllers
 
 			await ReplyTextMessageAsync(str);
 
-			if (result.Prediction == 10)
+			if (result.Prediction == 1)
 			{
-				string.Concat(new[] { "Спасибо за Ваш комментарий, пожалуйста оцените приложение 🙏" });
+				var happyMsg = string.Concat(new[] { "Спасибо за Ваш комментарий, пожалуйста оцените приложение 🙏" });
 
 				var data = new Dictionary<string, string>()
 				{
@@ -87,7 +93,7 @@ namespace SentimentAnalysis.Bot.Controllers
 					}
 				});
 
-				await ReplyTextMessageAsync(str, mode: ParseMode.MarkdownV2, replyToMessageId: 0, replyMarkup: keyboard);
+				await ReplyTextMessageAsync(happyMsg, mode: ParseMode.MarkdownV2, replyToMessageId: messageId, replyMarkup: keyboard);
 			}
 		}
 

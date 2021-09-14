@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using SentimentAnalysis.API.Models;
 using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet.Model;
+using SentimentAnalysis.API.Data;
 
 namespace SentimentAnalysis.API
 {

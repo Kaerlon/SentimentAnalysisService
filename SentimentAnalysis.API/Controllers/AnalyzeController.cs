@@ -10,6 +10,7 @@ using SentimentAnalysis.MlNet.Model;
 
 using System.Collections.Generic;
 using System.Linq;
+using SentimentAnalysis.API.Data;
 
 namespace SentimentAnalysis.API.Controllers
 {
@@ -41,8 +42,6 @@ namespace SentimentAnalysis.API.Controllers
 			var scheme = _predictionEnginePool.GetPredictionEngine(_mlConfiguration.ModelName).OutputSchema;
 
 			//var test = Predictor.GetScoresWithLabelsSorted(scheme, "Score", prediction.Score.GetValues().ToArray());
-
-			;
 
 			var result = new
 			{

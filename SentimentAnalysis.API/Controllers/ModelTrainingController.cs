@@ -8,6 +8,7 @@ using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet;
 using SentimentAnalysis.MlNet.Model;
 using System.Linq;
+using SentimentAnalysis.API.Data;
 
 namespace SentimentAnalysis.API.Controllers
 {

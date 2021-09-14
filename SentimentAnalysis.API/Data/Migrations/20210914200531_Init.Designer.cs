@@ -3,13 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SentimentAnalysis.API.Models;
 using SentimentAnalysis.API.Data;
 
 namespace SentimentAnalysis.API.Data.Migrations
 {
     [DbContext(typeof(TrainModelContext))]
-    [Migration("20210914195816_Init")]
+    [Migration("20210914200531_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

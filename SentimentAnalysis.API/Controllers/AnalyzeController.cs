@@ -2,15 +2,16 @@
 using Microsoft.Extensions.ML;
 using Microsoft.Extensions.Options;
 
+using Newtonsoft.Json;
+
+using SentimentAnalysis.API.Data;
 using SentimentAnalysis.API.Extensions;
-using SentimentAnalysis.API.Models;
 using SentimentAnalysis.API.Options;
 using SentimentAnalysis.MlNet;
 using SentimentAnalysis.MlNet.Model;
 
 using System.Collections.Generic;
 using System.Linq;
-using SentimentAnalysis.API.Data;
 
 namespace SentimentAnalysis.API.Controllers
 {
@@ -37,7 +38,9 @@ namespace SentimentAnalysis.API.Controllers
 			if (string.IsNullOrEmpty(input))
 				return BadRequest();
 
-			var prediction = _predictionEnginePool.Predict(_mlConfiguration.ModelName, new SentimentData { Message = input.NormalizeString() });
+			input = input.NormalizeString();
+
+			var prediction = _predictionEnginePool.Predict(_mlConfiguration.ModelName, new SentimentData { Message = input });
 
 			var scheme = _predictionEnginePool.GetPredictionEngine(_mlConfiguration.ModelName).OutputSchema;
 
@@ -53,6 +56,22 @@ namespace SentimentAnalysis.API.Controllers
 					{ "Negative", prediction.Score.GetValues()[1] },
 				}
 			};
+
+			var predictedMessage = _context.StoredMessages
+				.FirstOrDefault(x => x.Message == input);
+			if (predictedMessage == null)
+			{
+				predictedMessage = new Models.StoredMessage()
+				{
+					Message = input,
+					PredictResult = result.Prediction,
+					Result = -1,
+					Scores = JsonConvert.SerializeObject(result.Scores)
+				};
+
+				_context.StoredMessages.Add(predictedMessage);
+				_context.SaveChanges();
+			}
 
 			return Ok(result);
 		}

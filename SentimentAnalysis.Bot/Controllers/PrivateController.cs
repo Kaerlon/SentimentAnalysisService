@@ -68,10 +68,15 @@ namespace SentimentAnalysis.Bot.Controllers
 						break;
 				}
 
-				str += $"\n{rusName} на {pred.Value:P2}";
+				if (result.Prediction == (int)pred.Key)
+				{
+					rusName = $"*{rusName}*";
+				}
+
+				str += $"\n\r{rusName} на {pred.Value:P2}";
 			}
 
-			await ReplyTextMessageAsync(str);
+			await ReplyTextMessageAsync(str, ParseMode.MarkdownV2);
 
 			if (result.Prediction == 1)
 			{

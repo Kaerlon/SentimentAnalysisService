@@ -52,7 +52,7 @@
 
 	<ItemGroup>
 		<None Update="trainBotData.db">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 

@@ -15,81 +15,76 @@ namespace SentimentAnalysis.Test
 {
 	class Program
 	{
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
-			while (true)
+			var httpClient = new HttpClient()
 			{
-				var command = Console.ReadLine().Split(' ');
-				var httpClient = new HttpClient()
-				{
-					BaseAddress = new Uri("http://127.0.0.1:5000/")
-				};
-				Parser.Default.ParseArguments<CommandOptions>(command)
-					   .WithParsed(async o =>
+				BaseAddress = new Uri("http://127.0.0.1:5000/")
+			};
+			Parser.Default.ParseArguments<CommandOptions>(args)
+				   .WithParsed(async o =>
+				   {
+					   if (!string.IsNullOrEmpty(o.Predict))
 					   {
-						   if (!string.IsNullOrEmpty(o.Predict))
+						   var request = new HttpRequestMessage(HttpMethod.Post, "/api/Analyze/Predict")
 						   {
-							   var request = new HttpRequestMessage(HttpMethod.Post, "/api/Analyze/Predict")
+							   Content = new StringContent($"\"{o.Predict}\"", Encoding.UTF8, "application/json"),
+						   };
+						   var response = httpClient.SendAsync(request).Result;
+						   response.EnsureSuccessStatusCode();
+
+						   var result = JsonConvert.DeserializeObject<ResponseModel>(await response.Content.ReadAsStringAsync());
+
+						   var str = "По моему мнению, ваше сообщение:";
+
+						   foreach (var pred in result.Scores)
+						   {
+							   var rusName = "";
+
+							   switch (pred.Key)
 							   {
-								   Content = new StringContent($"\"{o.Predict}\"", Encoding.UTF8, "application/json"),
-							   };
-							   var response = await httpClient.SendAsync(request);
-							   response.EnsureSuccessStatusCode();
-
-							   var result = JsonConvert.DeserializeObject<ResponseModel>(await response.Content.ReadAsStringAsync());
-
-							   var str = "По моему мнению, ваше сообщение:";
-
-							   foreach (var pred in result.Scores)
-							   {
-								   var rusName = "";
-
-								   switch (pred.Key)
-								   {
-									   case LabelEnums.Negative:
-										   rusName = "Негативное";
-										   break;
-									   case LabelEnums.Positive:
-										   rusName = "Позитивное";
-										   break;
-									   case LabelEnums.Neutral:
-										   rusName = "Нейтральное";
-										   break;
-								   }
-
-								   str += $"\n{rusName} на {pred.Value:P2}";
+								   case LabelEnums.Negative:
+									   rusName = "Негативное";
+									   break;
+								   case LabelEnums.Positive:
+									   rusName = "Позитивное";
+									   break;
+								   case LabelEnums.Neutral:
+									   rusName = "Нейтральное";
+									   break;
 							   }
 
-							   Console.WriteLine(str);
-							   return;
+							   str += $"\n{rusName} на {pred.Value:P2}";
 						   }
 
-						   if (o.Evaluate)
-						   {
-							   var request = new HttpRequestMessage(HttpMethod.Post, "api/Analyze/Evaluate") { };
-							   var response = await httpClient.SendAsync(request);
-							   response.EnsureSuccessStatusCode();
+						   Console.WriteLine(str);
+						   return;
+					   }
 
-							   var result = await response.Content.ReadAsStringAsync();
+					   if (o.Evaluate)
+					   {
+						   var request = new HttpRequestMessage(HttpMethod.Post, "/api/Analyze/Evaluate") { };
+						   var response = await httpClient.SendAsync(request);
+						   response.EnsureSuccessStatusCode();
 
-							   Console.WriteLine(result);
-							   return;
-						   }
+						   var result = await response.Content.ReadAsStringAsync();
 
-						   if (o.ModelTrain)
-						   {
-							   var request = new HttpRequestMessage(HttpMethod.Post, "api/ModelTraining") { };
-							   var response = await httpClient.SendAsync(request);
-							   response.EnsureSuccessStatusCode();
+						   Console.WriteLine(result);
+						   return;
+					   }
 
-							   var result = await response.Content.ReadAsStringAsync();
+					   if (o.ModelTrain)
+					   {
+						   var request = new HttpRequestMessage(HttpMethod.Post, "/api/ModelTraining") { };
+						   var response = await httpClient.SendAsync(request);
+						   response.EnsureSuccessStatusCode();
 
-							   Console.WriteLine(result);
-							   return;
-						   }
-					   });
-			}
+						   var result = await response.Content.ReadAsStringAsync();
 
+						   Console.WriteLine(result);
+						   return;
+					   }
+				   });
 		}
 	}
 }

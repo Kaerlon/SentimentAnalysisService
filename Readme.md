@@ -1,9 +1,11 @@
 # Бот Finodays Bank
 
 Для запуска требуется установка [.Net Core Runtime](https://dotnet.microsoft.com/download/dotnet/5.0/runtime)
+
 Запускать программы требуется в следующем порядке:
 1. SentimentAnalysis.API
 2. SentimentAnalysis.Bot
+
 Для взаимодействия с нейронной сетью можно использовать:
 - Консольный проект SentimentAnalysis.Test
 - Телеграмм бота [@SentimentAssay_Bot](https://t.me/SentimentAssay_Bot)

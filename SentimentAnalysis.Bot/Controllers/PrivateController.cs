@@ -36,7 +36,9 @@ namespace SentimentAnalysis.Bot.Controllers
 		[NoCommandFilter, MessageTypeFilter(MessageType.Text)]
 		public async Task Communication()
 		{
-			var response = await _httpClient.PostAsJsonAsync<string>("/api/Analyze/Predict", this.Update.Message.Text);
+			var message = Update.Type == UpdateType.EditedMessage ? Update.EditedMessage.Text : Update.Message.Text;
+
+			var response = await _httpClient.PostAsJsonAsync<string>("/api/Analyze/Predict", message);
 			response.EnsureSuccessStatusCode();
 
 			var result = await response.Content.ReadFromJsonAsync<ResponseModel>();
